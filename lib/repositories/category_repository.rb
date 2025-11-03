@@ -2,14 +2,18 @@ require_relative '../models/category'
 
 # Repository for category data access
 class CategoryRepository
-  def initialize(storage = {})
-    @storage = storage
-    @next_id = 1
+  # Shared storage across all repository instances
+  @@storage = {}
+  @@next_id = 1
+
+  def initialize(storage = nil)
+    @storage = storage || @@storage
+    @next_id = @@next_id
   end
 
   def create(category)
-    category.id = @next_id
-    @next_id += 1
+    category.id = @@next_id
+    @@next_id += 1
     @storage[category.id] = category.dup
     @storage[category.id]
   end

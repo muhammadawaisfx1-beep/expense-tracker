@@ -1,11 +1,23 @@
-require 'sqlite3'
 require 'fileutils'
 
 # Database configuration module
 module DatabaseConfig
   DB_PATH = File.join(File.dirname(__dir__), '..', 'db', 'expense_tracker.db')
+  
+  # Check if sqlite3 is available
+  SQLITE3_AVAILABLE = begin
+    require 'sqlite3'
+    true
+  rescue LoadError
+    false
+  end
 
   def self.setup
+    unless SQLITE3_AVAILABLE
+      puts "Warning: sqlite3 not available. Database features disabled."
+      return nil
+    end
+    
     db_dir = File.dirname(DB_PATH)
     FileUtils.mkdir_p(db_dir) unless Dir.exist?(db_dir)
 

@@ -3,6 +3,10 @@
 require_relative '../config/database'
 
 puts 'Setting up database...'
-DatabaseConfig.setup
-puts 'Database setup complete!'
+result = DatabaseConfig.setup
+if result
+  puts 'Database setup complete!'
+else
+  puts 'Database setup skipped (sqlite3 not available - using in-memory storage)'
+end
 

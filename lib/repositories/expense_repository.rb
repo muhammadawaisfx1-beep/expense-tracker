@@ -2,14 +2,18 @@ require_relative '../models/expense'
 
 # Repository for expense data access
 class ExpenseRepository
-  def initialize(storage = {})
-    @storage = storage
-    @next_id = 1
+  # Shared storage across all repository instances
+  @@storage = {}
+  @@next_id = 1
+
+  def initialize(storage = nil)
+    @storage = storage || @@storage
+    @next_id = @@next_id
   end
 
   def create(expense)
-    expense.id = @next_id
-    @next_id += 1
+    expense.id = @@next_id
+    @@next_id += 1
     @storage[expense.id] = expense.dup
     @storage[expense.id]
   end

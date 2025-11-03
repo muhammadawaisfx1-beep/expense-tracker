@@ -1,6 +1,13 @@
 require 'rspec'
 require_relative '../lib/app'
-require_relative '../config/database'
+
+# Try to load database config, but don't fail if sqlite3 isn't available
+begin
+  require_relative '../config/database'
+rescue LoadError => e
+  puts "Warning: Database config not loaded: #{e.message}"
+  puts "Tests will use in-memory repositories only."
+end
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|

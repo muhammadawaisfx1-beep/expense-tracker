@@ -18,64 +18,86 @@ class ExpenseTrackerApp < Sinatra::Base
   get '/api/expenses' do
     user_id = params['user_id'] || 1
     controller = ExpenseController.new
-    controller.list(user_id, parse_filters).first
+    status, headers, body = controller.list(user_id, parse_filters)
+    status status
+    body
   end
 
   post '/api/expenses' do
     controller = ExpenseController.new
     data = JSON.parse(request.body.read)
-    controller.create(symbolize_keys(data)).first
+    status, headers, body = controller.create(symbolize_keys(data))
+    status status
+    body
   end
 
   get '/api/expenses/:id' do
     controller = ExpenseController.new
-    controller.show(params['id']).first
+    status, headers, body = controller.show(params['id'])
+    status status
+    body
   end
 
   put '/api/expenses/:id' do
     controller = ExpenseController.new
     data = JSON.parse(request.body.read)
-    controller.update(params['id'], symbolize_keys(data)).first
+    status, headers, body = controller.update(params['id'], symbolize_keys(data))
+    status status
+    body
   end
 
   delete '/api/expenses/:id' do
     controller = ExpenseController.new
-    controller.delete(params['id']).first
+    status, headers, body = controller.delete(params['id'])
+    status status
+    body
   end
 
   get '/api/expenses/:user_id/total' do
     controller = ExpenseController.new
     date_range = parse_date_range
-    controller.total(params['user_id'], date_range).first
+    status, headers, body = controller.total(params['user_id'], date_range)
+    status status
+    body
   end
 
   # Category endpoints
   get '/api/categories' do
     user_id = params['user_id'] || 1
     controller = CategoryController.new
-    controller.list(user_id).first
+    status, headers, body = controller.list(user_id)
+    status status
+    body
   end
 
   post '/api/categories' do
     controller = CategoryController.new
     data = JSON.parse(request.body.read)
-    controller.create(symbolize_keys(data)).first
+    status, headers, body = controller.create(symbolize_keys(data))
+    status status
+    body
   end
 
   get '/api/categories/:id' do
     controller = CategoryController.new
-    controller.show(params['id']).first
+    status, headers, body = controller.show(params['id'])
+    status status
+    body
   end
 
   put '/api/categories/:id' do
     controller = CategoryController.new
     data = JSON.parse(request.body.read)
-    controller.update(params['id'], symbolize_keys(data)).first
+    status, headers, body = controller.update(params['id'], symbolize_keys(data))
+    status status
+    body
   end
 
   delete '/api/categories/:id' do
     controller = CategoryController.new
-    controller.delete(params['id']).first
+    status, headers, body = controller.delete(params['id'])
+    status status
+    body
   end
 
   # Report endpoints
@@ -84,21 +106,27 @@ class ExpenseTrackerApp < Sinatra::Base
     year = params['year'] || Date.today.year
     month = params['month'] || Date.today.month
     controller = ReportController.new
-    controller.monthly_report(user_id, year, month).first
+    status, headers, body = controller.monthly_report(user_id, year, month)
+    status status
+    body
   end
 
   get '/api/reports/yearly' do
     user_id = params['user_id'] || 1
     year = params['year'] || Date.today.year
     controller = ReportController.new
-    controller.yearly_report(user_id, year).first
+    status, headers, body = controller.yearly_report(user_id, year)
+    status status
+    body
   end
 
   get '/api/reports/category/:category_id' do
     user_id = params['user_id'] || 1
     date_range = parse_date_range
     controller = ReportController.new
-    controller.category_report(user_id, params['category_id'], date_range).first
+    status, headers, body = controller.category_report(user_id, params['category_id'], date_range)
+    status status
+    body
   end
 
   # Health check

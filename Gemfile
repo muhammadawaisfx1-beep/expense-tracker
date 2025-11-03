@@ -7,7 +7,7 @@ gem 'sinatra', '~> 2.2'
 gem 'rack', '~> 2.2'
 
 # Database
-gem 'sqlite3', '~> 1.6'
+gem 'sqlite3', '~> 2.0'
 gem 'sequel', '~> 5.68'
 
 # Testing
