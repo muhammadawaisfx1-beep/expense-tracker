@@ -15,17 +15,31 @@ module DatabaseConfig
   def self.setup
     unless SQLITE3_AVAILABLE
       puts "Warning: sqlite3 not available. Database features disabled."
+      puts "The application will use in-memory storage instead."
+      puts ""
+      puts "To enable database support on Windows:"
+      puts "1. Download SQLite DLL from https://www.sqlite.org/download.html"
+      puts "2. Place sqlite3.dll in your Ruby bin directory"
+      puts "3. Or use Docker: docker-compose up"
+      puts ""
       return nil
     end
     
-    db_dir = File.dirname(DB_PATH)
-    FileUtils.mkdir_p(db_dir) unless Dir.exist?(db_dir)
+    begin
+      db_dir = File.dirname(DB_PATH)
+      FileUtils.mkdir_p(db_dir) unless Dir.exist?(db_dir)
 
-    db = SQLite3::Database.new(DB_PATH)
-    db.results_as_hash = true
+      db = SQLite3::Database.new(DB_PATH)
+      db.results_as_hash = true
 
-    create_tables(db)
-    db
+      create_tables(db)
+      puts "Database initialized at: #{DB_PATH}"
+      db
+    rescue => e
+      puts "Error initializing database: #{e.message}"
+      puts "Falling back to in-memory storage."
+      nil
+    end
   end
 
   def self.create_tables(db)

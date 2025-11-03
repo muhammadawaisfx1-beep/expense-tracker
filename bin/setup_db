@@ -3,10 +3,16 @@
 require_relative '../config/database'
 
 puts 'Setting up database...'
+puts ''
 result = DatabaseConfig.setup
 if result
+  puts ''
   puts 'Database setup complete!'
+  puts 'Database file location: db/expense_tracker.db'
 else
-  puts 'Database setup skipped (sqlite3 not available - using in-memory storage)'
+  puts ''
+  puts 'Database setup skipped - using in-memory storage'
+  puts 'Note: All data will be lost when the application stops.'
+  puts 'This is fine for development and testing.'
 end
 
