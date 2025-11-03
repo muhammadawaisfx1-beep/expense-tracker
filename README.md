@@ -36,6 +36,13 @@ A Ruby-based expense tracking application for managing personal finances, budget
 
 The application will be available at `http://localhost:9292`
 
+4. Test the API (in a new terminal):
+   ```bash
+   ruby bin/test_api.rb
+   ```
+
+This will test all endpoints and show you which ones are working.
+
 ## Testing
 
 Run the test suite:
