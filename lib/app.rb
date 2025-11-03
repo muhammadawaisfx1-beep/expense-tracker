@@ -105,8 +105,13 @@ class ExpenseTrackerApp < Sinatra::Base
     user_id = params['user_id'] || 1
     year = params['year'] || Date.today.year
     month = params['month'] || Date.today.month
+    filters = {
+      category_id: params['category_id'],
+      min_amount: params['min_amount'],
+      max_amount: params['max_amount']
+    }
     controller = ReportController.new
-    status, headers, body = controller.monthly_report(user_id, year, month)
+    status, headers, body = controller.monthly_report(user_id, year, month, filters)
     status status
     body
   end
