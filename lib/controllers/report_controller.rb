@@ -9,8 +9,14 @@ class ReportController
     @service = service
   end
 
-  def monthly_report(user_id, year, month)
-    result = @service.generate_monthly_report(user_id.to_i, year.to_i, month.to_i)
+  def monthly_report(user_id, year, month, filters = {})
+    # Build filters hash from parameters
+    report_filters = {}
+    report_filters[:category_id] = filters[:category_id] if filters[:category_id] && !filters[:category_id].to_s.empty?
+    report_filters[:min_amount] = filters[:min_amount] if filters[:min_amount] && !filters[:min_amount].to_s.empty?
+    report_filters[:max_amount] = filters[:max_amount] if filters[:max_amount] && !filters[:max_amount].to_s.empty?
+
+    result = @service.generate_monthly_report(user_id.to_i, year.to_i, month.to_i, report_filters)
     if result[:success]
       [200, { 'Content-Type' => 'application/json' }, result[:data].to_json]
     else

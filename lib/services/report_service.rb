@@ -9,12 +9,27 @@ class ReportService
     @category_repository = category_repo
   end
 
-  def generate_monthly_report(user_id, year, month)
+  def generate_monthly_report(user_id, year, month, filters = {})
     start_date = Date.new(year, month, 1)
     end_date = start_date.next_month.prev_day
 
     expenses = @expense_repository.find_by_user(user_id)
     monthly_expenses = expenses.select { |e| e.date >= start_date && e.date <= end_date }
+
+    # Apply filters if provided
+    if filters[:category_id]
+      monthly_expenses = monthly_expenses.select { |e| e.category_id == filters[:category_id].to_i }
+    end
+
+    if filters[:min_amount]
+      min_amount = filters[:min_amount].to_f
+      monthly_expenses = monthly_expenses.select { |e| e.amount >= min_amount }
+    end
+
+    if filters[:max_amount]
+      max_amount = filters[:max_amount].to_f
+      monthly_expenses = monthly_expenses.select { |e| e.amount <= max_amount }
+    end
 
     total = monthly_expenses.sum(&:amount)
     by_category = monthly_expenses.group_by(&:category_id).transform_values { |exps| exps.sum(&:amount) }
