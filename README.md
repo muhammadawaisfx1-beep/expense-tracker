@@ -43,6 +43,25 @@ The application will be available at `http://localhost:9292`
 
 This will test all endpoints and show you which ones are working.
 
+## Quick Usage Examples
+
+### Add a Category
+```bash
+ruby bin/quick_add_category.rb "Food & Dining" 500
+```
+
+### Add an Expense
+```bash
+ruby bin/quick_add_expense.rb 45.50 "Lunch at restaurant" "2025-01-15" 1
+```
+
+### View in Browser
+- Health: http://localhost:9292/health
+- List Expenses: http://localhost:9292/api/expenses?user_id=1
+- Monthly Report: http://localhost:9292/api/reports/monthly?user_id=1&year=2025&month=1
+
+See `USAGE_GUIDE.md` for detailed examples with PowerShell and curl.
+
 ## Testing
 
 Run the test suite:
