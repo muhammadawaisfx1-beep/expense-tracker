@@ -141,12 +141,23 @@ class ExpenseTrackerApp < Sinatra::Base
   end
 
   def parse_filters
-    {
-      category_id: params['category_id']&.to_i,
-      start_date: params['start_date'] ? Date.parse(params['start_date']) : nil,
-      end_date: params['end_date'] ? Date.parse(params['end_date']) : nil,
-      search: params['search']
-    }.compact
+    filters = {}
+    filters[:category_id] = params['category_id'].to_i if params['category_id'] && !params['category_id'].empty?
+    
+    begin
+      filters[:start_date] = Date.parse(params['start_date']) if params['start_date'] && !params['start_date'].empty?
+      filters[:end_date] = Date.parse(params['end_date']) if params['end_date'] && !params['end_date'].empty?
+    rescue ArgumentError
+      # Invalid date format, skip date filters
+    end
+    
+    filters[:search] = params['search'] if params['search'] && !params['search'].empty?
+    filters[:min_amount] = params['min_amount'] if params['min_amount'] && !params['min_amount'].empty?
+    filters[:max_amount] = params['max_amount'] if params['max_amount'] && !params['max_amount'].empty?
+    filters[:sort_by] = params['sort_by'] if params['sort_by'] && !params['sort_by'].empty?
+    filters[:order] = params['order'] if params['order'] && !params['order'].empty?
+    
+    filters
   end
 
   def parse_date_range
