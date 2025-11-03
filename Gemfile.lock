@@ -65,6 +65,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.1.0)
+    webrick (1.9.1)
 
 PLATFORMS
   x64-mingw-ucrt
@@ -80,6 +81,7 @@ DEPENDENCIES
   sequel (~> 5.68)
   sinatra (~> 2.2)
   sqlite3 (~> 2.0)
+  webrick (~> 1.8)
 
 RUBY VERSION
    ruby 3.4.7p58

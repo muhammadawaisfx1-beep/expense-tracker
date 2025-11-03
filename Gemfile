@@ -5,6 +5,7 @@ ruby '~> 3.0'
 # Web framework
 gem 'sinatra', '~> 2.2'
 gem 'rack', '~> 2.2'
+gem 'webrick', '~> 1.8'
 
 # Database
 gem 'sqlite3', '~> 2.0'
