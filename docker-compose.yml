@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  expense-tracker:
+    build: .
+    ports:
+      - "9292:9292"
+    volumes:
+      - ./db:/app/db
+      - ./lib:/app/lib
+      - ./config:/app/config
+    environment:
+      - RACK_ENV=development
+    command: bundle exec rackup config.ru -o 0.0.0.0 -p 9292
+
