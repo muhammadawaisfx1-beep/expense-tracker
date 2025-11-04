@@ -49,5 +49,14 @@ module Validators
     return false unless value.is_a?(Numeric)
     value > 0
   end
+
+  def self.validate_date_range(start_date, end_date)
+    return false if start_date.nil? || end_date.nil?
+    start = start_date.is_a?(Date) ? start_date : Date.parse(start_date)
+    end_dt = end_date.is_a?(Date) ? end_date : Date.parse(end_date)
+    start <= end_dt
+  rescue ArgumentError
+    false
+  end
 end
 
