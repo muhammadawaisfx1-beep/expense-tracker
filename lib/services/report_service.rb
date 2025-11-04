@@ -50,11 +50,17 @@ class ReportService
     end_date = Date.new(year, 12, 31)
 
     expenses = @expense_repository.find_by_user(user_id)
-    yearly_expenses = expenses.select { |e| e.date >= start_date && e.date <= end_date }
+    yearly_expenses = expenses.select do |e|
+      expense_date = e.date.is_a?(String) ? Date.parse(e.date) : e.date
+      expense_date >= start_date && expense_date <= end_date
+    end
 
     total = yearly_expenses.sum(&:amount)
     by_month = (1..12).to_a.map do |month|
-      month_expenses = yearly_expenses.select { |e| e.date.month == month }
+      month_expenses = yearly_expenses.select do |e|
+        expense_date = e.date.is_a?(String) ? Date.parse(e.date) : e.date
+        expense_date.month == month
+      end
       { month: month, total: month_expenses.sum(&:amount), count: month_expenses.count }
     end
 
