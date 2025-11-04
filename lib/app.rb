@@ -3,6 +3,7 @@ require 'json'
 require_relative 'controllers/expense_controller'
 require_relative 'controllers/category_controller'
 require_relative 'controllers/report_controller'
+require_relative 'controllers/budget_controller'
 require_relative '../config/app'
 
 # Main Sinatra application
@@ -130,6 +131,53 @@ class ExpenseTrackerApp < Sinatra::Base
     date_range = parse_date_range
     controller = ReportController.new
     status, headers, body = controller.category_report(user_id, params['category_id'], date_range)
+    status status
+    body
+  end
+
+  # Budget endpoints
+  get '/api/budgets' do
+    user_id = params['user_id'] || 1
+    controller = BudgetController.new
+    status, headers, body = controller.list(user_id)
+    status status
+    body
+  end
+
+  post '/api/budgets' do
+    controller = BudgetController.new
+    data = JSON.parse(request.body.read)
+    status, headers, body = controller.create(symbolize_keys(data))
+    status status
+    body
+  end
+
+  get '/api/budgets/:id' do
+    controller = BudgetController.new
+    status, headers, body = controller.show(params['id'])
+    status status
+    body
+  end
+
+  put '/api/budgets/:id' do
+    controller = BudgetController.new
+    data = JSON.parse(request.body.read)
+    status, headers, body = controller.update(params['id'], symbolize_keys(data))
+    status status
+    body
+  end
+
+  delete '/api/budgets/:id' do
+    controller = BudgetController.new
+    status, headers, body = controller.delete(params['id'])
+    status status
+    body
+  end
+
+  get '/api/budgets/:id/status' do
+    user_id = params['user_id'] || 1
+    controller = BudgetController.new
+    status, headers, body = controller.status(params['id'], user_id)
     status status
     body
   end
