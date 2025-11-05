@@ -182,6 +182,26 @@ class ExpenseTrackerApp < Sinatra::Base
     body
   end
 
+  get '/api/budgets/alerts/:type' do
+    user_id = params['user_id'] || 1
+    alert_type = params['type']
+    threshold_percent = params['threshold_percent'] || 80
+    controller = BudgetController.new
+    status, headers, body = controller.alerts(user_id, alert_type, threshold_percent)
+    status status
+    body
+  end
+
+  get '/api/budgets/alerts' do
+    user_id = params['user_id'] || 1
+    alert_type = params['type'] || 'all'
+    threshold_percent = params['threshold_percent'] || 80
+    controller = BudgetController.new
+    status, headers, body = controller.alerts(user_id, alert_type, threshold_percent)
+    status status
+    body
+  end
+
   # Health check
   get '/health' do
     { status: 'ok', app: AppConfig::APP_NAME, version: AppConfig::VERSION }.to_json

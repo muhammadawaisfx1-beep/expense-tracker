@@ -114,5 +114,64 @@ class BudgetService
     end
     near_limit_budgets
   end
+
+  def generate_alert(budget, user_id, threshold_percent = 80)
+    spending = calculate_spending_for_category(user_id, budget.category_id, budget.period_start, budget.period_end)
+    remaining = budget.amount - spending
+    percentage_used = (spending.to_f / budget.amount.to_f * 100).round(2)
+    
+    if spending > budget.amount
+      {
+        budget: budget.to_hash,
+        spending: spending,
+        remaining: remaining,
+        percentage_used: percentage_used,
+        alert_type: 'exceeded',
+        message: "Budget exceeded by $#{remaining.abs.round(2)} (#{percentage_used}% used)."
+      }
+    elsif percentage_used >= threshold_percent
+      {
+        budget: budget.to_hash,
+        spending: spending,
+        remaining: remaining,
+        percentage_used: percentage_used,
+        alert_type: 'near_limit',
+        message: "Budget is #{percentage_used}% used. Only $#{remaining.round(2)} remaining."
+      }
+    else
+      nil
+    end
+  end
+
+  def get_budget_alerts(user_id, alert_type = 'all', threshold_percent = 80)
+    budgets = @budget_repository.find_by_user(user_id)
+    alerts = []
+    exceeded_count = 0
+    near_limit_count = 0
+
+    budgets.each do |budget|
+      next unless budget.user_id == user_id
+
+      alert = generate_alert(budget, user_id, threshold_percent)
+      next if alert.nil?
+
+      # Filter by alert type if specified
+      if alert_type == 'all' || alert[:alert_type] == alert_type
+        alerts << alert
+        exceeded_count += 1 if alert[:alert_type] == 'exceeded'
+        near_limit_count += 1 if alert[:alert_type] == 'near_limit'
+      end
+    end
+
+    {
+      success: true,
+      data: {
+        alerts: alerts,
+        total_alerts: alerts.length,
+        exceeded_count: exceeded_count,
+        near_limit_count: near_limit_count
+      }
+    }
+  end
 end
 
