@@ -60,5 +60,14 @@ class BudgetController
       [400, { 'Content-Type' => 'application/json' }, { errors: status_result[:errors] }.to_json]
     end
   end
+
+  def alerts(user_id, alert_type = 'all', threshold_percent = 80)
+    result = @service.get_budget_alerts(user_id.to_i, alert_type, threshold_percent.to_f)
+    if result[:success]
+      [200, { 'Content-Type' => 'application/json' }, result[:data].to_json]
+    else
+      [400, { 'Content-Type' => 'application/json' }, { errors: result[:errors] }.to_json]
+    end
+  end
 end
 
