@@ -12,18 +12,6 @@ Currently, the application can track budget status and identify when budgets are
 4. **Alert Details**: Include budget information, spending amount, percentage used, and alert type (exceeded/near_limit) in alert responses
 5. **Alert Filtering**: Filter alerts by alert type (exceeded, near_limit, or all)
 
-## Acceptance Criteria
-
-- [ ] Users can retrieve all active budget alerts via API
-- [ ] Alerts are generated for budgets that exceed their limits
-- [ ] Alerts are generated for budgets approaching their limits (configurable threshold)
-- [ ] Alert responses include budget details, spending, remaining amount, and alert type
-- [ ] Users can filter alerts by type (exceeded, near_limit, all)
-- [ ] API endpoint accepts threshold_percent parameter for custom alert thresholds
-- [ ] At least 3 unit tests for alert operations
-- [ ] 1 P2P test demonstrating alert generation workflow
-- [ ] 1 F2P test demonstrating alert when approaching limit
-
 ## API Endpoints
 
 - `GET /api/budgets/alerts` - Get all active budget alerts for a user
