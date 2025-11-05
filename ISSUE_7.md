@@ -1,4 +1,4 @@
-# Issue #7: Implement budget creation and tracking system
+# Issue #6: Implement budget creation and tracking system
 
 ## Description
 
