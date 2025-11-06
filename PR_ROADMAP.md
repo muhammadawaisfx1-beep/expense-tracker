@@ -16,8 +16,6 @@ This document outlines the 20 planned PRs for the expense tracker repository.
 - **Tests**: 3+ unit tests + 1 P2P + 1 F2P
 - **Files Modified**: ~4 files, ~120 LOC
 
-## Planned PRs
-
 ### PR #3: Expense Search and Filtering (Feature)
 - **Issue**: Add search and filtering functionality for expenses
 - **Changes**: Add search parameters to ExpenseRepository, ExpenseService, ExpenseController
@@ -52,6 +50,10 @@ This document outlines the 20 planned PRs for the expense tracker repository.
 - **Tests**: 3+ unit tests + 1 P2P test (alert generation) + 1 F2P test (alert when approaching limit)
 - **Expected Files**: lib/services/budget_service.rb, lib/controllers/budget_controller.rb
 - **Expected LOC**: ~100 lines
+
+
+## Planned PRs
+
 
 ### PR #8: Recurring Expenses (Feature)
 - **Issue**: Support recurring expense entries
