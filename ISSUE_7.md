@@ -1,56 +1,90 @@
-# Issue #6: Implement budget creation and tracking system
+# Issue #7: Budget Alerts/Notifications System
 
 ## Description
 
-Currently, the application has budget models and some budget tracking logic, but there's no complete API for creating, managing, and tracking budgets. This feature will implement a full budget management system with CRUD operations and budget status tracking.
+Currently, the application can track budget status and identify when budgets are exceeded or near limit, but there's no API endpoint or notification system to alert users about budget status. This feature will implement a budget alert system that notifies users when their spending approaches or exceeds budget limits.
 
 ## Requirements
 
-1. **Budget Creation**: Create budgets for categories with amount and period (start/end dates)
-2. **Budget Management**: Update and delete budgets
-3. **Budget Listing**: List all budgets for a user
-4. **Budget Status Tracking**: Check budget status (spending vs. limit, remaining amount, percentage used)
-5. **Budget Alerts**: Identify budgets that are exceeded or near limit
-
-## Acceptance Criteria
-
-- [ ] Users can create budgets via API
-- [ ] Users can update existing budgets
-- [ ] Users can delete budgets
-- [ ] Users can list all their budgets
-- [ ] Users can check budget status (spending, remaining, percentage used)
-- [ ] API endpoints accept budget parameters (category_id, amount, period_start, period_end)
-- [ ] Budget validation ensures valid dates and amounts
-- [ ] At least 3 unit tests for budget operations
-- [ ] 1 P2P test demonstrating budget creation workflow
-- [ ] 1 F2P test demonstrating budget status tracking
+1. **Alert Generation**: Generate alerts for budgets that are exceeded or approaching limits
+2. **Alert Threshold Configuration**: Support configurable threshold percentage (default 80%) for "near limit" alerts
+3. **Alert Retrieval**: API endpoint to retrieve all active alerts for a user
+4. **Alert Details**: Include budget information, spending amount, percentage used, and alert type (exceeded/near_limit) in alert responses
+5. **Alert Filtering**: Filter alerts by alert type (exceeded, near_limit, or all)
 
 ## API Endpoints
 
-- `POST /api/budgets` - Create a new budget
-- `GET /api/budgets` - List all budgets for a user
-- `GET /api/budgets/:id` - Get a specific budget
-- `PUT /api/budgets/:id` - Update a budget
-- `DELETE /api/budgets/:id` - Delete a budget
-- `GET /api/budgets/:id/status` - Get budget status (spending, remaining, etc.)
+- `GET /api/budgets/alerts` - Get all active budget alerts for a user
+- `GET /api/budgets/alerts/:type` - Get alerts filtered by type (exceeded, near_limit)
+
+## API Parameters
+
+- `user_id` (required) - User ID to retrieve alerts for
+- `threshold_percent` (optional, default: 80) - Percentage threshold for "near limit" alerts
+- `type` (optional) - Filter alerts by type: 'exceeded', 'near_limit', or 'all' (default: 'all')
 
 ## Example Usage
 
 ```bash
-# Create a budget
-POST /api/budgets
-{
-  "category_id": 1,
-  "amount": 500,
-  "period_start": "2025-01-01",
-  "period_end": "2025-01-31",
-  "user_id": 1
-}
+# Get all active alerts for a user
+GET /api/budgets/alerts?user_id=1
 
-# Get budget status
-GET /api/budgets/1/status?user_id=1
+# Get only exceeded budget alerts
+GET /api/budgets/alerts/exceeded?user_id=1
 
-# List all budgets
-GET /api/budgets?user_id=1
+# Get alerts with custom threshold (90%)
+GET /api/budgets/alerts?user_id=1&threshold_percent=90
+
+# Get near-limit alerts
+GET /api/budgets/alerts/near_limit?user_id=1&threshold_percent=85
 ```
+
+## Expected Response Format
+
+```json
+{
+  "alerts": [
+    {
+      "budget": {
+        "id": 1,
+        "category_id": 1,
+        "amount": 500,
+        "period_start": "2025-01-01",
+        "period_end": "2025-01-31",
+        "user_id": 1
+      },
+      "spending": 450.0,
+      "remaining": 50.0,
+      "percentage_used": 90.0,
+      "alert_type": "near_limit",
+      "message": "Budget is 90% used. Only $50.0 remaining."
+    },
+    {
+      "budget": {
+        "id": 2,
+        "category_id": 2,
+        "amount": 300,
+        "period_start": "2025-01-01",
+        "period_end": "2025-01-31",
+        "user_id": 1
+      },
+      "spending": 350.0,
+      "remaining": -50.0,
+      "percentage_used": 116.67,
+      "alert_type": "exceeded",
+      "message": "Budget exceeded by $50.0 (116.67% used)."
+    }
+  ],
+  "total_alerts": 2,
+  "exceeded_count": 1,
+  "near_limit_count": 1
+}
+```
+
+## Implementation Notes
+
+- Alerts should be calculated in real-time based on current spending
+- Alert threshold should be configurable per request
+- Alert messages should be descriptive and include key metrics
+- The system should handle cases where a budget might be both exceeded and near limit (prioritize exceeded)
 
