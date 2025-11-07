@@ -67,5 +67,84 @@ RSpec.describe Expense do
       expect(hash[:description]).to eq('Test')
     end
   end
+
+  describe '#normalize_tags' do
+    it 'handles array of tags' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1,
+        tags: ['food', 'restaurant', 'lunch']
+      )
+      expect(expense.tags).to eq(['food', 'restaurant', 'lunch'])
+    end
+
+    it 'handles comma-separated string tags' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1,
+        tags: 'food, restaurant, lunch'
+      )
+      expect(expense.tags).to eq(['food', 'restaurant', 'lunch'])
+    end
+
+    it 'removes duplicate tags' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1,
+        tags: ['food', 'food', 'restaurant']
+      )
+      expect(expense.tags).to eq(['food', 'restaurant'])
+    end
+
+    it 'trims whitespace from tags' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1,
+        tags: '  food  ,  restaurant  ,  lunch  '
+      )
+      expect(expense.tags).to eq(['food', 'restaurant', 'lunch'])
+    end
+
+    it 'handles empty tags' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1,
+        tags: []
+      )
+      expect(expense.tags).to eq([])
+    end
+
+    it 'handles nil tags' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1,
+        tags: nil
+      )
+      expect(expense.tags).to eq([])
+    end
+
+    it 'handles empty string tags' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1,
+        tags: ''
+      )
+      expect(expense.tags).to eq([])
+    end
+
+    it 'includes tags in hash representation' do
+      expense = Expense.new(
+        id: 1,
+        amount: 100,
+        date: Date.new(2025, 1, 15),
+        description: 'Test',
+        category_id: 1,
+        user_id: 1,
+        tags: ['food', 'lunch']
+      )
+      hash = expense.to_hash
+      expect(hash[:tags]).to eq(['food', 'lunch'])
+    end
+  end
 end
 
