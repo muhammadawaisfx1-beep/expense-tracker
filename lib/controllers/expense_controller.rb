@@ -45,7 +45,14 @@ class ExpenseController
   end
 
   def list(user_id, filters = {})
-    result = @service.list_expenses(user_id.to_i, filters)
+    # Parse tags from filters if present (can be string or array)
+    normalized_filters = filters.dup
+    if normalized_filters[:tags]
+      if normalized_filters[:tags].is_a?(String)
+        normalized_filters[:tags] = normalized_filters[:tags].split(',').map(&:strip).reject(&:empty?)
+      end
+    end
+    result = @service.list_expenses(user_id.to_i, normalized_filters)
     [200, { 'Content-Type' => 'application/json' }, result[:data].to_json]
   end
 

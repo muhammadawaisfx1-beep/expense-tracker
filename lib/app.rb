@@ -280,6 +280,15 @@ class ExpenseTrackerApp < Sinatra::Base
     filters[:sort_by] = params['sort_by'] if params['sort_by'] && !params['sort_by'].empty?
     filters[:order] = params['order'] if params['order'] && !params['order'].empty?
     
+    # Handle tags (can be comma-separated string or array)
+    if params['tags']
+      if params['tags'].is_a?(Array)
+        filters[:tags] = params['tags']
+      elsif !params['tags'].empty?
+        filters[:tags] = params['tags']
+      end
+    end
+    
     filters
   end
 

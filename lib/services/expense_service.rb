@@ -23,7 +23,12 @@ class ExpenseService
     return { success: false, errors: ['Expense not found'] } if expense.nil?
 
     params.each do |key, value|
-      expense.send("#{key}=", value) if expense.respond_to?("#{key}=")
+      if key == :tags && value
+        # Normalize tags using the expense's normalize_tags method
+        expense.tags = expense.normalize_tags(value)
+      elsif expense.respond_to?("#{key}=")
+        expense.send("#{key}=", value)
+      end
     end
 
     return { success: false, errors: ['Invalid expense data'] } unless expense.valid?

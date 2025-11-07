@@ -104,6 +104,50 @@ RSpec.describe ExpenseRepository do
       expect(results.length).to eq(2)
       expect(results.map(&:amount)).to eq([100.0, 50.0])
     end
+
+    it 'filters by tags' do
+      expense1 = Expense.new(
+        amount: 50.0,
+        date: Date.new(2025, 1, 15),
+        description: 'Lunch',
+        category_id: 1,
+        user_id: user_id,
+        tags: ['food', 'restaurant']
+      )
+      expense2 = Expense.new(
+        amount: 25.5,
+        date: Date.new(2025, 1, 20),
+        description: 'Coffee',
+        category_id: 2,
+        user_id: user_id,
+        tags: ['food', 'beverage']
+      )
+      expense3 = Expense.new(
+        amount: 100.0,
+        date: Date.new(2025, 2, 1),
+        description: 'Grocery',
+        category_id: 1,
+        user_id: user_id,
+        tags: ['food', 'grocery']
+      )
+
+      repository.create(expense1)
+      repository.create(expense2)
+      repository.create(expense3)
+
+      # Filter by single tag
+      results = repository.find_by_user(user_id, tags: ['food'])
+      expect(results.length).to eq(3)
+
+      # Filter by multiple tags (expense must have all)
+      results = repository.find_by_user(user_id, tags: ['food', 'restaurant'])
+      expect(results.length).to eq(1)
+      expect(results.first.description).to eq('Lunch')
+
+      # Filter by tag that doesn't exist
+      results = repository.find_by_user(user_id, tags: ['nonexistent'])
+      expect(results.length).to eq(0)
+    end
   end
 end
 

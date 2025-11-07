@@ -54,6 +54,16 @@ class ExpenseRepository
       expenses = expenses.select { |e| e.amount <= filters[:max_amount].to_f }
     end
 
+    # Filter by tags (expense must have all specified tags)
+    if filters[:tags]
+      tag_filter = filters[:tags].is_a?(Array) ? filters[:tags] : [filters[:tags]]
+      tag_filter = tag_filter.map(&:to_s).map(&:strip).reject(&:empty?)
+      expenses = expenses.select do |e|
+        expense_tags = (e.tags || []).map(&:to_s).map(&:downcase)
+        tag_filter.map(&:downcase).all? { |tag| expense_tags.include?(tag.downcase) }
+      end
+    end
+
     # Sorting
     sort_by = filters[:sort_by] || 'date'
     order = filters[:order] || 'desc'
