@@ -1,6 +1,10 @@
+require_relative '../../config/app'
+
 # Expense model representing a single expense entry
 class Expense
-  attr_accessor :id, :amount, :date, :description, :category_id, :user_id, :tags, :created_at
+  attr_accessor :id, :amount, :date, :description, :category_id, :user_id, :tags, :currency, :created_at
+
+  VALID_CURRENCIES = %w[USD EUR GBP JPY CAD AUD CHF CNY INR].freeze
 
   def initialize(params = {})
     @id = params[:id]
@@ -10,6 +14,7 @@ class Expense
     @category_id = params[:category_id]
     @user_id = params[:user_id]
     @tags = normalize_tags(params[:tags])
+    @currency = params[:currency] || AppConfig::DEFAULT_CURRENCY
     @created_at = params[:created_at] || Time.now
   end
 
@@ -34,6 +39,7 @@ class Expense
     return false if date.nil?
     return false if user_id.nil?
     return false if description.to_s.strip.empty?
+    return false if currency && !VALID_CURRENCIES.include?(currency.to_s.upcase)
     true
   end
 
@@ -46,6 +52,7 @@ class Expense
       category_id: category_id,
       user_id: user_id,
       tags: tags,
+      currency: currency,
       created_at: created_at.to_s
     }
   end

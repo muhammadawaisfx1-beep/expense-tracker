@@ -146,5 +146,58 @@ RSpec.describe Expense do
       expect(hash[:tags]).to eq(['food', 'lunch'])
     end
   end
+
+  describe '#currency' do
+    it 'sets default currency to USD when not provided' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1
+      )
+      expect(expense.currency).to eq('USD')
+    end
+
+    it 'accepts valid currency codes' do
+      expense = Expense.new(
+        amount: 100,
+        description: 'Test expense',
+        user_id: 1,
+        currency: 'EUR'
+      )
+      expect(expense.currency).to eq('EUR')
+      expect(expense.valid?).to be true
+    end
+
+    it 'rejects invalid currency codes' do
+      expense = Expense.new(
+        amount: 100,
+        description: 'Test expense',
+        user_id: 1,
+        currency: 'XYZ'
+      )
+      expect(expense.valid?).to be false
+    end
+
+    it 'includes currency in hash representation' do
+      expense = Expense.new(
+        id: 1,
+        amount: 100,
+        user_id: 1,
+        currency: 'EUR'
+      )
+      hash = expense.to_hash
+      expect(hash[:currency]).to eq('EUR')
+    end
+
+    it 'handles case-insensitive currency codes' do
+      expense = Expense.new(
+        amount: 100,
+        user_id: 1,
+        currency: 'eur'
+      )
+      expect(expense.currency).to eq('eur')
+      # Validation should normalize to uppercase
+      expect(Expense::VALID_CURRENCIES.include?(expense.currency.upcase)).to be true
+    end
+  end
 end
 
