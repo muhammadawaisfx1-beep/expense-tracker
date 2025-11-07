@@ -51,10 +51,6 @@ This document outlines the 20 planned PRs for the expense tracker repository.
 - **Expected Files**: lib/services/budget_service.rb, lib/controllers/budget_controller.rb
 - **Expected LOC**: ~100 lines
 
-
-## Planned PRs
-
-
 ### PR #8: Recurring Expenses (Feature)
 - **Issue**: Support recurring expense entries
 - **Changes**: Add RecurringExpense model, service, and controller
@@ -75,6 +71,10 @@ This document outlines the 20 planned PRs for the expense tracker repository.
 - **Tests**: 3+ unit tests + 1 P2P test (create expense with currency) + 1 F2P test (currency conversion)
 - **Expected Files**: lib/models/expense.rb, lib/utils/currency_converter.rb, lib/services/expense_service.rb
 - **Expected LOC**: ~140 lines
+
+
+## Planned PRs
+
 
 ### PR #11: Expense Export (CSV/JSON) (Feature)
 - **Issue**: Export expenses to CSV and JSON formats
