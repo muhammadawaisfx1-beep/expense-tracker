@@ -189,5 +189,114 @@ RSpec.describe 'Expense Workflow Integration', type: :integration do
       expect(expenses.map { |e| e['description'] }).to contain_exactly('Lunch', 'Grocery')
     end
   end
+
+  describe 'P2P: Expense Creation with Currency' do
+    it 'allows creating an expense with currency and retrieving it' do
+      # Create expense with EUR currency
+      post '/api/expenses', {
+        amount: 50.00,
+        date: '2025-01-20',
+        description: 'Coffee in Paris',
+        category_id: 1,
+        user_id: 1,
+        currency: 'EUR'
+      }.to_json, { 'CONTENT_TYPE' => 'application/json' }
+
+      expect(last_response.status).to be_between(200, 201)
+      expense_data = JSON.parse(last_response.body)
+      expense_id = expense_data['id']
+      expect(expense_data['currency']).to eq('EUR')
+      expect(expense_data['amount']).to eq(50.00)
+
+      # Retrieve the expense and verify currency
+      get "/api/expenses/#{expense_id}"
+      expect(last_response.status).to eq(200)
+      retrieved = JSON.parse(last_response.body)
+      expect(retrieved['currency']).to eq('EUR')
+      expect(retrieved['amount']).to eq(50.00)
+    end
+
+    it 'defaults to USD when currency is not specified' do
+      post '/api/expenses', {
+        amount: 100.00,
+        date: '2025-01-21',
+        description: 'Lunch',
+        category_id: 1,
+        user_id: 1
+      }.to_json, { 'CONTENT_TYPE' => 'application/json' }
+
+      expect(last_response.status).to be_between(200, 201)
+      expense_data = JSON.parse(last_response.body)
+      expect(expense_data['currency']).to eq('USD')
+    end
+  end
+
+  describe 'F2P: Currency Conversion' do
+    before do
+      # Clear repositories
+      ExpenseRepository.class_variable_set(:@@storage, {})
+      ExpenseRepository.class_variable_set(:@@next_id, 1)
+
+      # Create expenses in different currencies
+      post '/api/expenses', {
+        amount: 100.00,
+        date: '2025-01-15',
+        description: 'US Expense',
+        category_id: 1,
+        user_id: 1,
+        currency: 'USD'
+      }.to_json, { 'CONTENT_TYPE' => 'application/json' }
+      @usd_expense_id = JSON.parse(last_response.body)['id']
+
+      post '/api/expenses', {
+        amount: 85.00,
+        date: '2025-01-16',
+        description: 'European Expense',
+        category_id: 1,
+        user_id: 1,
+        currency: 'EUR'
+      }.to_json, { 'CONTENT_TYPE' => 'application/json' }
+      @eur_expense_id = JSON.parse(last_response.body)['id']
+    end
+
+    it 'converts expense amount from one currency to another' do
+      # Convert USD expense to EUR
+      service = ExpenseService.new
+      result = service.convert_expense_currency(@usd_expense_id, 'EUR')
+
+      expect(result[:success]).to be true
+      expect(result[:data][:original_currency]).to eq('USD')
+      expect(result[:data][:original_amount]).to eq(100.00)
+      expect(result[:data][:target_currency]).to eq('EUR')
+      expect(result[:data][:converted_amount]).to be_within(0.01).of(85.0)
+    end
+
+    it 'converts EUR expense to USD' do
+      service = ExpenseService.new
+      result = service.convert_expense_currency(@eur_expense_id, 'USD')
+
+      expect(result[:success]).to be true
+      expect(result[:data][:original_currency]).to eq('EUR')
+      expect(result[:data][:target_currency]).to eq('USD')
+      expect(result[:data][:converted_amount]).to be_within(0.01).of(100.0)
+    end
+
+    it 'calculates total in target currency' do
+      service = ExpenseService.new
+      result = service.calculate_total(1, nil, 'USD')
+
+      expect(result[:success]).to be true
+      # Both expenses converted to USD: 100 USD + 100 USD (from 85 EUR) = 200 USD
+      expect(result[:data]).to be_within(0.01).of(200.0)
+    end
+
+    it 'returns error for unsupported currency' do
+      service = ExpenseService.new
+      result = service.convert_expense_currency(@usd_expense_id, 'XYZ')
+
+      expect(result[:success]).to be false
+      expect(result[:errors]).to include(match(/Unsupported currency/))
+    end
+  end
 end
 

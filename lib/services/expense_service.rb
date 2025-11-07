@@ -1,5 +1,6 @@
 require_relative '../repositories/expense_repository'
 require_relative '../utils/validators'
+require_relative '../utils/currency_converter'
 
 # Service layer for expense business logic
 class ExpenseService
@@ -60,11 +61,47 @@ class ExpenseService
     { success: true, data: expenses }
   end
 
-  def calculate_total(user_id, date_range = nil)
+  def calculate_total(user_id, date_range = nil, target_currency = nil)
     expenses = @repository.find_by_user(user_id)
     expenses = expenses.select { |e| date_range.nil? || (e.date >= date_range[:start] && e.date <= date_range[:end]) } if date_range
-    total = expenses.sum(&:amount)
+    
+    if target_currency
+      # Convert all expenses to target currency before summing
+      converted_amounts = expenses.map do |expense|
+        CurrencyConverter.convert_expense(expense, target_currency) || 0
+      end
+      total = converted_amounts.sum
+    else
+      total = expenses.sum(&:amount)
+    end
+    
     { success: true, data: total }
+  end
+
+  # Convert expense amount to a different currency
+  # @param expense_id [Integer] ID of the expense
+  # @param target_currency [String] Target currency code
+  # @return [Hash] Result with converted amount or error
+  def convert_expense_currency(expense_id, target_currency)
+    expense = @repository.find_by_id(expense_id)
+    return { success: false, errors: ['Expense not found'] } if expense.nil?
+
+    unless CurrencyConverter.supported?(target_currency)
+      return { success: false, errors: ["Unsupported currency: #{target_currency}"] }
+    end
+
+    converted_amount = CurrencyConverter.convert_expense(expense, target_currency)
+    return { success: false, errors: ['Currency conversion failed'] } if converted_amount.nil?
+
+    {
+      success: true,
+      data: {
+        original_amount: expense.amount,
+        original_currency: expense.currency,
+        converted_amount: converted_amount,
+        target_currency: target_currency
+      }
+    }
   end
 end
 
