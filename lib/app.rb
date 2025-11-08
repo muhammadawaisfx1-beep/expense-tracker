@@ -5,6 +5,7 @@ require_relative 'controllers/category_controller'
 require_relative 'controllers/report_controller'
 require_relative 'controllers/budget_controller'
 require_relative 'controllers/recurring_expense_controller'
+require_relative 'controllers/export_controller'
 require_relative '../config/app'
 
 # Main Sinatra application
@@ -252,6 +253,27 @@ class ExpenseTrackerApp < Sinatra::Base
     body
   end
 
+  # Export endpoints
+  get '/api/export/csv' do
+    user_id = params['user_id'] || 1
+    filters = parse_export_filters
+    controller = ExportController.new
+    status, headers, body = controller.csv_export(user_id, filters)
+    headers.each { |k, v| response.headers[k] = v }
+    status status
+    body
+  end
+
+  get '/api/export/json' do
+    user_id = params['user_id'] || 1
+    filters = parse_export_filters
+    controller = ExportController.new
+    status, headers, body = controller.json_export(user_id, filters)
+    headers.each { |k, v| response.headers[k] = v }
+    status status
+    body
+  end
+
   # Health check
   get '/health' do
     { status: 'ok', app: AppConfig::APP_NAME, version: AppConfig::VERSION }.to_json
@@ -298,6 +320,23 @@ class ExpenseTrackerApp < Sinatra::Base
       start: Date.parse(params['start_date']),
       end: Date.parse(params['end_date'])
     }
+  end
+
+  def parse_export_filters
+    filters = {}
+    filters[:category_id] = params['category_id'].to_i if params['category_id'] && !params['category_id'].empty?
+    
+    begin
+      filters[:start_date] = Date.parse(params['start_date']) if params['start_date'] && !params['start_date'].empty?
+      filters[:end_date] = Date.parse(params['end_date']) if params['end_date'] && !params['end_date'].empty?
+    rescue ArgumentError
+      # Invalid date format, skip date filters
+    end
+    
+    filters[:min_amount] = params['min_amount'].to_f if params['min_amount'] && !params['min_amount'].empty?
+    filters[:max_amount] = params['max_amount'].to_f if params['max_amount'] && !params['max_amount'].empty?
+    
+    filters
   end
 end
 
