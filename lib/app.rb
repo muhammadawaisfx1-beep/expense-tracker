@@ -6,6 +6,7 @@ require_relative 'controllers/report_controller'
 require_relative 'controllers/budget_controller'
 require_relative 'controllers/recurring_expense_controller'
 require_relative 'controllers/export_controller'
+require_relative 'controllers/statistics_controller'
 require_relative '../config/app'
 
 # Main Sinatra application
@@ -270,6 +271,16 @@ class ExpenseTrackerApp < Sinatra::Base
     controller = ExportController.new
     status, headers, body = controller.json_export(user_id, filters)
     headers.each { |k, v| response.headers[k] = v }
+    status status
+    body
+  end
+
+  # Statistics endpoints
+  get '/api/statistics' do
+    user_id = params['user_id'] || 1
+    date_range = parse_date_range
+    controller = StatisticsController.new
+    status, headers, body = controller.dashboard(user_id, date_range)
     status status
     body
   end
